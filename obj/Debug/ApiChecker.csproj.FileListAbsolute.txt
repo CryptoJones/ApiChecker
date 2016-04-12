@@ -1,0 +1,7 @@
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\bin\Debug\ApiChecker.exe.config
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\bin\Debug\config.xml
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\bin\Debug\ApiChecker.exe
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\bin\Debug\ApiChecker.pdb
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\obj\Debug\ApiChecker.exe
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\obj\Debug\ApiChecker.pdb
+C:\Users\aaron Clark\Documents\Visual Studio 2015\Projects\ApiChecker\obj\Debug\ApiChecker.csprojResolveAssemblyReference.cache

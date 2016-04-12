@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <sites> 
+        <site>
+            <url>http://reinkeapps-prod.azurewebsites.net/DL2/ReinkeSystems_Info.aspx</url>
+            <expectedreponselength>32</expectedreponselength>
+        </site>
+        <site>
+            <url>http://reinkeapps-beta.azurewebsites.net/DL2/ReinkeSystems_Info.aspx</url>
+            <expectedreponselength>32</expectedreponselength>
+        </site>
+    </sites>
+    <mailserver>10.1.1.10</mailserver> 
+    <recipients>
+        <recipient>AaronClark@reinke.com</recipient>
+        <recipient>CharlesNelson@reinke.com</recipient>
+        <recipient>BillHawkins@reinke.com</recipient>
+    </recipients>
+</feed>

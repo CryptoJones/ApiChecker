@@ -1,0 +1,6 @@
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\bin\Debug\AzureChecker.exe.config
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\bin\Debug\AzureChecker.exe
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\bin\Debug\AzureChecker.pdb
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\obj\Debug\AzureChecker.csprojResolveAssemblyReference.cache
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\obj\Debug\AzureChecker.exe
+c:\users\aaron clark\documents\visual studio 2015\Projects\AzureChecker\obj\Debug\AzureChecker.pdb
