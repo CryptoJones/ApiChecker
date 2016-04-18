@@ -28,7 +28,7 @@ namespace ApiChecker
         static void Main(string[] args)
         {
 
-            ParseXML();
+            ParseXML();         
 
             foreach (website site in ProgramVariables.WebsiteList)
             {
@@ -39,6 +39,33 @@ namespace ApiChecker
 
         public static void ParseXML()
         {
+            if (!File.Exists("config.xml"))
+            {
+                Console.WriteLine("The config.xml file is missing. It should be in the following format:");
+                Console.WriteLine(" ");
+                Console.WriteLine("<?xml version=\"1.0\" encoding=\"utf - 8\"?>");
+                Console.WriteLine("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
+                Console.WriteLine("    <sites>");
+                Console.WriteLine("        <site>");
+                Console.WriteLine("            <url>http://www.url.com</url>");
+                Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                Console.WriteLine("        </site>");
+                Console.WriteLine("        <site>");
+                Console.WriteLine("            <url>http://www.url2.com</url>");
+                Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                Console.WriteLine("        </site>");
+                Console.WriteLine("    </sites>");
+                Console.WriteLine("    <mailserver>127.0.0.1</mailserver> ");
+                Console.WriteLine("    <recipients>");
+                Console.WriteLine("        <recipient>user@domain.com</recipient>");
+                Console.WriteLine("    </recipients>");
+                Console.WriteLine("</feed>");
+                Environment.Exit(78);
+
+
+            }
+
+
             var xmlDocument = new XmlDocument();
             xmlDocument.Load("config.xml");
             var xmlnm = new XmlNamespaceManager(xmlDocument.NameTable);
