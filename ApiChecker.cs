@@ -74,39 +74,125 @@ namespace ApiChecker
             // Sites List
             var sitesList = xmlDocument.SelectNodes("//ns:sites", xmlnm);
 
+            if (sitesList.Count < 1)
+            {
+                Console.WriteLine("No <sites> entry in config.xml file. ");
+                Console.WriteLine("The sites entry should look like the following:");
+                Console.WriteLine(" ");
+                Console.WriteLine("    <sites>");
+                Console.WriteLine("        <site>");
+                Console.WriteLine("            <url>http://www.url.com</url>");
+                Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                Console.WriteLine("        </site>");
+                Console.WriteLine("    </sites>");
+
+                Environment.Exit(78);
+            }
+
+            
             foreach (XmlNode sites in sitesList)
             {
-                foreach (XmlNode site in sites)
+                if (sites.ChildNodes.Count < 1)
                 {
-                    var websiteObject = new website();
+                    Console.WriteLine("No <site> entry in config.xml file. (This should be inside the <sites> entry!!)");
+                    Console.WriteLine(" ");
+                    Console.WriteLine("The site entry should look like the following:");
+                    Console.WriteLine(" ");
+                    Console.WriteLine("        <site>");
+                    Console.WriteLine("            <url>http://www.url.com</url>");
+                    Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                    Console.WriteLine("        </site>");
 
-                    foreach (XmlNode siteElement in site)
+                    Environment.Exit(78);
+
+                }
+                else
+                {
+                    foreach (XmlNode site in sites)
                     {
-                        if (siteElement.Name == "url")
+                        var websiteObject = new website();
+
+                        if ((site.FirstChild.Name != "url" && site.FirstChild.Name != "expectedresponselength") |  (site.LastChild.Name == "url" && site.LastChild.Name == "expectedresponselength") | (site.ChildNodes.Count != 2))
                         {
-                            websiteObject.url = siteElement.InnerXml;
+                            Console.WriteLine("Invalid <site> entry in config.xml file.");
+                            Console.WriteLine(" ");
+                            Console.WriteLine("The site entry should look like the following:");
+                            Console.WriteLine(" ");
+                            Console.WriteLine("        <site>");
+                            Console.WriteLine("            <url>http://www.url.com</url>");
+                            Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                            Console.WriteLine("        </site>");
+
+                            Environment.Exit(78);
                         }
 
-                        if (siteElement.Name == "expectedreponselength")
+                        foreach (XmlNode siteElement in site)
                         {
-                            websiteObject.ExpectedResponseLength = Convert.ToInt32(siteElement.InnerXml);
+                            if (siteElement.Name == "url")
+                            {
+                                websiteObject.url = siteElement.InnerXml;
+                            }
+
+                            if (siteElement.Name == "expectedreponselength")
+                            {
+                                websiteObject.ExpectedResponseLength = Convert.ToInt32(siteElement.InnerXml);
+                            }
                         }
+
+                        ProgramVariables.WebsiteList.Add(websiteObject);
                     }
-
-                    ProgramVariables.WebsiteList.Add(websiteObject);
                 }
             }
 
             // Mail Server Address
-            var server = xmlDocument.SelectSingleNode("//ns:mailserver", xmlnm);
-            ProgramVariables.MailServerAddress = server.InnerXml;
+            try
+            {
+                var server = xmlDocument.SelectSingleNode("//ns:mailserver", xmlnm);
+                ProgramVariables.MailServerAddress = server.InnerXml;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Invalid or missing <mailserver> entry in config.xml file.");
+                Console.WriteLine(" ");
+                Console.WriteLine("The <mailserver> entry should look like the following:");
+                Console.WriteLine(" ");
+                Console.WriteLine("    <mailserver>127.0.0.1</mailserver>");
+
+                Environment.Exit(78);
+            }
+
+            
 
             // Email Recipients
-            var recipients = xmlDocument.SelectSingleNode("//ns:recipients", xmlnm);
-
-            foreach (XmlNode recipient in recipients)
+            try
             {
+                var recipients = xmlDocument.SelectSingleNode("//ns:recipients", xmlnm);
+
+                if (recipients.ChildNodes.Count == 0)
+                {
+                    Console.WriteLine("Invalid or missing <recipient> entry in config.xml file.");
+                    Console.WriteLine(" ");
+                    Console.WriteLine("The <recipient> entry should look like the following:");
+                    Console.WriteLine(" ");
+                    Console.WriteLine("<recipient>user@domain.com</recipient>");
+                    Environment.Exit(78);
+                }
+
+                foreach (XmlNode recipient in recipients)
+                {
                     ProgramVariables.EmaiList.Add(recipient.InnerText);
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Invalid or missing <recipients> entry in config.xml file.");
+                Console.WriteLine(" ");
+                Console.WriteLine("The <recipients> entry should look like the following:");
+                Console.WriteLine(" ");
+                Console.WriteLine("    <recipients>");
+                Console.WriteLine("        <recipient>user@domain.com</recipient>");
+                Console.WriteLine("    </recipients>");
+                Environment.Exit(78);
             }
         }
 
@@ -115,7 +201,7 @@ namespace ApiChecker
             try
             {
                 WebRequest wr = WebRequest.Create(url);
-                ((HttpWebRequest) wr).UserAgent = "API Checker/1.0 (.NET Runtime 4.x)";
+                ((HttpWebRequest) wr).UserAgent = "API Checker 1.0/(.NET Runtime 4.x)";
                 WebResponse response = wr.GetResponse();
 
                 Stream dataStream = response.GetResponseStream();
@@ -130,7 +216,7 @@ namespace ApiChecker
             }
             catch (Exception ex)
             {
-                Alert(ex.ToString(), url);
+                Alert(ex + " ", url);
             }
         }
 
