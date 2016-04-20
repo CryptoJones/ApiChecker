@@ -112,19 +112,26 @@ namespace ApiChecker
 
         public static void CheckSite(string url, int expectedLength)
         {
-            WebRequest wr = WebRequest.Create(url);
-            ((HttpWebRequest) wr).UserAgent = "API Checker/1.0 (.NET Runtime 4.x)";
-            WebResponse response = wr.GetResponse();
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-           
-            if (responseFromServer.Length != expectedLength)
+            try
             {
-                Alert("Unexpected reponse length from API at: ", url);
-            }
+                WebRequest wr = WebRequest.Create(url);
+                ((HttpWebRequest) wr).UserAgent = "API Checker/1.0 (.NET Runtime 4.x)";
+                WebResponse response = wr.GetResponse();
 
-            response.Close();
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+                String responseFromServer = reader.ReadToEnd();
+                response.Close();
+
+                if (responseFromServer.Length != expectedLength)
+                {
+                    Alert("Unexpected reponse length from API at: ", url);
+                }
+            }
+            catch (Exception ex)
+            {
+                Alert(ex.ToString(), url);
+            }
         }
 
         public static void Alert(string message, string site)
