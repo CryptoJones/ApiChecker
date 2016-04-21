@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CodeDom;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
@@ -9,35 +8,9 @@ using System.Xml;
 
 namespace ApiChecker
 {
-    public static class ProgramVariables
+    internal class ApiChecker
     {
-
-        public static List<website> WebsiteList = new List<website>();
-        public static string MailServerAddress;
-        public static List<string> EmaiList = new List<string>();
-
-    }
-
-    public class website
-    {
-        public int ExpectedResponseLength { get; set; }
-        public string url { get; set; }
-    }
-    class ApiChecker
-    {
-        static void Main(string[] args)
-        {
-
-            ParseXML();         
-
-            foreach (website site in ProgramVariables.WebsiteList)
-            {
-                CheckSite(site.url, site.ExpectedResponseLength);
-            }
-
-        }
-
-        public static void ParseXML()
+        private static void Main(string[] args)
         {
             if (!File.Exists("config.xml"))
             {
@@ -61,18 +34,25 @@ namespace ApiChecker
                 Console.WriteLine("    </recipients>");
                 Console.WriteLine("</feed>");
                 Environment.Exit(78);
-
-
             }
 
-
-            var xmlDocument = new XmlDocument();
+            XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load("config.xml");
-            var xmlnm = new XmlNamespaceManager(xmlDocument.NameTable);
+            XmlNamespaceManager xmlnm = new XmlNamespaceManager(xmlDocument.NameTable);
             xmlnm.AddNamespace("ns", "http://www.w3.org/2005/Atom");
 
+            ValidateXml(xmlDocument, xmlnm);
+
+            foreach (Website site in ProgramVariables.WebsiteList)
+            {
+                CheckSite(site.url, site.ExpectedResponseLength);
+            }
+        }
+
+        public static void ValidateXml(XmlDocument document, XmlNamespaceManager nsm)
+        {
             // Sites List
-            var sitesList = xmlDocument.SelectNodes("//ns:sites", xmlnm);
+            XmlNodeList sitesList = document.SelectNodes("//ns:sites", nsm);
 
             if (sitesList.Count < 1)
             {
@@ -89,7 +69,7 @@ namespace ApiChecker
                 Environment.Exit(78);
             }
 
-            
+
             foreach (XmlNode sites in sitesList)
             {
                 if (sites.ChildNodes.Count < 1)
@@ -104,50 +84,48 @@ namespace ApiChecker
                     Console.WriteLine("        </site>");
 
                     Environment.Exit(78);
-
                 }
-                else
+
+                foreach (XmlNode site in sites)
                 {
-                    foreach (XmlNode site in sites)
+                    Website websiteObject = new Website();
+
+                    if ((site.FirstChild.Name != "url" && site.FirstChild.Name != "expectedresponselength") |
+                        (site.LastChild.Name == "url" && site.LastChild.Name == "expectedresponselength") |
+                        (site.ChildNodes.Count != 2))
                     {
-                        var websiteObject = new website();
+                        Console.WriteLine("Invalid <site> entry in config.xml file.");
+                        Console.WriteLine(" ");
+                        Console.WriteLine("The site entry should look like the following:");
+                        Console.WriteLine(" ");
+                        Console.WriteLine("        <site>");
+                        Console.WriteLine("            <url>http://www.url.com</url>");
+                        Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
+                        Console.WriteLine("        </site>");
 
-                        if ((site.FirstChild.Name != "url" && site.FirstChild.Name != "expectedresponselength") |  (site.LastChild.Name == "url" && site.LastChild.Name == "expectedresponselength") | (site.ChildNodes.Count != 2))
-                        {
-                            Console.WriteLine("Invalid <site> entry in config.xml file.");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("The site entry should look like the following:");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("        <site>");
-                            Console.WriteLine("            <url>http://www.url.com</url>");
-                            Console.WriteLine("            <expectedreponselength>32</expectedreponselength>");
-                            Console.WriteLine("        </site>");
-
-                            Environment.Exit(78);
-                        }
-
-                        foreach (XmlNode siteElement in site)
-                        {
-                            if (siteElement.Name == "url")
-                            {
-                                websiteObject.url = siteElement.InnerXml;
-                            }
-
-                            if (siteElement.Name == "expectedreponselength")
-                            {
-                                websiteObject.ExpectedResponseLength = Convert.ToInt32(siteElement.InnerXml);
-                            }
-                        }
-
-                        ProgramVariables.WebsiteList.Add(websiteObject);
+                        Environment.Exit(78);
                     }
+
+                    foreach (XmlNode siteElement in site)
+                    {
+                        if (siteElement.Name == "url")
+                        {
+                            websiteObject.url = siteElement.InnerXml;
+                        }
+
+                        if (siteElement.Name == "expectedreponselength")
+                        {
+                            websiteObject.ExpectedResponseLength = Convert.ToInt32(siteElement.InnerXml);
+                        }
+                    }
+                    ProgramVariables.WebsiteList.Add(websiteObject);
                 }
             }
 
             // Mail Server Address
             try
             {
-                var server = xmlDocument.SelectSingleNode("//ns:mailserver", xmlnm);
+                XmlNode server = document.SelectSingleNode("//ns:mailserver", nsm);
                 ProgramVariables.MailServerAddress = server.InnerXml;
             }
             catch (Exception)
@@ -161,12 +139,11 @@ namespace ApiChecker
                 Environment.Exit(78);
             }
 
-            
 
             // Email Recipients
             try
             {
-                var recipients = xmlDocument.SelectSingleNode("//ns:recipients", xmlnm);
+                XmlNode recipients = document.SelectSingleNode("//ns:recipients", nsm);
 
                 if (recipients.ChildNodes.Count == 0)
                 {
@@ -222,7 +199,6 @@ namespace ApiChecker
 
         public static void Alert(string message, string site)
         {
-
             MailMessage newmessage = new MailMessage();
             newmessage.From = new MailAddress("noreply@domain.com");
             newmessage.Subject = "API Alert";
@@ -230,12 +206,11 @@ namespace ApiChecker
 
             foreach (string email in ProgramVariables.EmaiList)
             {
-               newmessage.To.Add(email);
-            } 
-            
+                newmessage.To.Add(email);
+            }
+
             SmtpClient client = new SmtpClient(ProgramVariables.MailServerAddress);
             client.Send(newmessage);
-
         }
     }
 }

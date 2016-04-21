@@ -45,7 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiChecker.cs" />
+    <Compile Include="ProgramVariables.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Website.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
